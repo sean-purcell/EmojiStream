@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='conn.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\nconn.proto\"S\n\x11\x43onnectionRequest\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0e\n\x06ipaddr\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\r\x12\x0c\n\x04time\x18\x04 \x01(\x01\x62\x06proto3')
+  serialized_pb=_b('\n\nconn.proto\"`\n\x11\x43onnectionRequest\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0e\n\x06ipaddr\x18\x02 \x01(\t\x12\x0c\n\x04port\x18\x03 \x01(\r\x12\x0c\n\x04time\x18\x04 \x01(\x01\x12\x0b\n\x03uid\x18\x05 \x01(\x06\"%\n\x06Packet\x12\x0b\n\x03uid\x18\x01 \x01(\x06\x12\x0e\n\x06packet\x18\x02 \x01(\x0c\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -61,6 +61,13 @@ _CONNECTIONREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='uid', full_name='ConnectionRequest.uid', index=4,
+      number=5, type=6, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -74,10 +81,49 @@ _CONNECTIONREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=14,
-  serialized_end=97,
+  serialized_end=110,
+)
+
+
+_PACKET = _descriptor.Descriptor(
+  name='Packet',
+  full_name='Packet',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='uid', full_name='Packet.uid', index=0,
+      number=1, type=6, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='packet', full_name='Packet.packet', index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=112,
+  serialized_end=149,
 )
 
 DESCRIPTOR.message_types_by_name['ConnectionRequest'] = _CONNECTIONREQUEST
+DESCRIPTOR.message_types_by_name['Packet'] = _PACKET
 
 ConnectionRequest = _reflection.GeneratedProtocolMessageType('ConnectionRequest', (_message.Message,), dict(
   DESCRIPTOR = _CONNECTIONREQUEST,
@@ -85,6 +131,13 @@ ConnectionRequest = _reflection.GeneratedProtocolMessageType('ConnectionRequest'
   # @@protoc_insertion_point(class_scope:ConnectionRequest)
   ))
 _sym_db.RegisterMessage(ConnectionRequest)
+
+Packet = _reflection.GeneratedProtocolMessageType('Packet', (_message.Message,), dict(
+  DESCRIPTOR = _PACKET,
+  __module__ = 'conn_pb2'
+  # @@protoc_insertion_point(class_scope:Packet)
+  ))
+_sym_db.RegisterMessage(Packet)
 
 
 # @@protoc_insertion_point(module_scope)

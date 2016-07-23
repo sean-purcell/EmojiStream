@@ -5,5 +5,11 @@ message ConnectionRequest {
     string ipaddr = 2;
     uint32 port = 3;
     double time = 4;
+    fixed64 uid = 5;
+}
+
+message Packet {
+    fixed64 uid = 1;
+    bytes packet = 2;
 }
 
