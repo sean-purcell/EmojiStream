@@ -70,7 +70,7 @@ def server_loop(sock):
                     register(user_dict, user_data)
                 else:
                     logging.info('connecting users with identifier %s', ident)
-                    connect_users(user_dict[ident], user_data, server)
+                    connect_users(user_dict[ident], user_data, sock)
                     user_dict.pop(ident)
             else:
                 register(user_dict, user_data)

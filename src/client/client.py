@@ -7,6 +7,7 @@ import logging
 import socket
 
 from proto.conn_pb2 import ConnectionRequest
+from google.protobuf.message import DecodeError
 
 def configure():
     parser = argparse.ArgumentParser(description='💻 🎥 📞 📡 😀')
@@ -39,14 +40,31 @@ def connect(ident, addr):
             break
         except socket.timeout:
             pass
+    try:
+        req = ConnectionRequest()
+        req.ParseFromString(data)
+        return req
+    except DecodeError:
+        logging.exception('Invalid connection data received')
+        raise
 
+def chat_loop(sock, ouser):
+    sock.settimeout(0)
+    oaddr = (ouser.ipaddr, ouser.port)
+    while True:
+        sock.sendto('yoo', oaddr)
+        data, addr = sock.recvfrom(10)
+        if data:
+            logging.info('Recevied message from %s: %s', addr, data)
 
 def main(args):
     print 'Identifier:',
     ident = raw_input()
 
     sock, ouser = connect(ident, (args.server, args.port))
-    conn = ConnectionRequest
+
+    logging.debug('connection to %s, %s', ouser.ipaddr, ouser.port)
+    chat_loop(sock, ouser)
 
 if __name__ == '__main__':
     args = configure()
