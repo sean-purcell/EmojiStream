@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='dataupdates.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x11\x64\x61taupdates.proto\",\n\x0bImageHeader\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\"V\n\nImageBlock\x12\x0c\n\x04left\x18\x01 \x01(\x05\x12\x0b\n\x03top\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\x12\x0e\n\x06pixels\x18\x05 \x01(\x0c\"\xa2\x01\n\x08\x46\x61\x63\x65\x44\x61ta\x12\x1e\n\x05\x65moji\x18\x01 \x01(\x0e\x32\x0f.FaceData.Emoji\x12\t\n\x01x\x18\x02 \x01(\x05\x12\t\n\x01y\x18\x03 \x01(\x05\x12\n\n\x02\x64x\x18\x04 \x01(\x05\x12\n\n\x02\x64y\x18\x05 \x01(\x05\x12\r\n\x05theta\x18\x06 \x01(\x05\x12\x0e\n\x06\x64theta\x18\x07 \x01(\x05\x12\x0c\n\x04size\x18\x08 \x01(\x05\"\x1b\n\x05\x45moji\x12\t\n\x05HAPPY\x10\x00\x12\x07\n\x03SAD\x10\x01\"y\n\nDataUpdate\x12\x1b\n\x08\x66\x61\x63\x65\x64\x61ta\x18\x01 \x01(\x0b\x32\t.FaceData\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1e\n\timg_block\x18\x03 \x01(\x0b\x32\x0b.ImageBlock\x12\x1d\n\x07img_hdr\x18\x04 \x01(\x0b\x32\x0c.ImageHeaderb\x06proto3')
+  serialized_pb=_b('\n\x11\x64\x61taupdates.proto\",\n\x0bImageHeader\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\"V\n\nImageBlock\x12\x0c\n\x04left\x18\x01 \x01(\x05\x12\x0b\n\x03top\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\x12\x0e\n\x06pixels\x18\x05 \x01(\x0c\"\xa2\x01\n\x08\x46\x61\x63\x65\x44\x61ta\x12\x1e\n\x05\x65moji\x18\x01 \x01(\x0e\x32\x0f.FaceData.Emoji\x12\t\n\x01x\x18\x02 \x01(\x05\x12\t\n\x01y\x18\x03 \x01(\x05\x12\n\n\x02\x64x\x18\x04 \x01(\x05\x12\n\n\x02\x64y\x18\x05 \x01(\x05\x12\r\n\x05theta\x18\x06 \x01(\x05\x12\x0e\n\x06\x64theta\x18\x07 \x01(\x05\x12\x0c\n\x04size\x18\x08 \x01(\x05\"\x1b\n\x05\x45moji\x12\t\n\x05HAPPY\x10\x00\x12\x07\n\x03SAD\x10\x01\"\xcc\x01\n\nDataUpdate\x12\x1b\n\x08\x66\x61\x63\x65\x64\x61ta\x18\x01 \x01(\x0b\x32\t.FaceData\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1e\n\timg_block\x18\x03 \x01(\x0b\x32\x0b.ImageBlock\x12\x1d\n\x07img_hdr\x18\x04 \x01(\x0b\x32\x0c.ImageHeader\x12\x1f\n\x05utype\x18\x05 \x01(\x0e\x32\x10.DataUpdate.Type\"0\n\x04Type\x12\x0c\n\x08\x46\x41\x43\x45\x44\x41TA\x10\x00\x12\r\n\tIMG_BLOCK\x10\x01\x12\x0b\n\x07IMG_HDR\x10\x02\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -46,6 +46,32 @@ _FACEDATA_EMOJI = _descriptor.EnumDescriptor(
   serialized_end=318,
 )
 _sym_db.RegisterEnumDescriptor(_FACEDATA_EMOJI)
+
+_DATAUPDATE_TYPE = _descriptor.EnumDescriptor(
+  name='Type',
+  full_name='DataUpdate.Type',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='FACEDATA', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='IMG_BLOCK', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='IMG_HDR', index=2, number=2,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=477,
+  serialized_end=525,
+)
+_sym_db.RegisterEnumDescriptor(_DATAUPDATE_TYPE)
 
 
 _IMAGEHEADER = _descriptor.Descriptor(
@@ -261,11 +287,19 @@ _DATAUPDATE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='utype', full_name='DataUpdate.utype', index=4,
+      number=5, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
+    _DATAUPDATE_TYPE,
   ],
   options=None,
   is_extendable=False,
@@ -273,8 +307,8 @@ _DATAUPDATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=320,
-  serialized_end=441,
+  serialized_start=321,
+  serialized_end=525,
 )
 
 _FACEDATA.fields_by_name['emoji'].enum_type = _FACEDATA_EMOJI
@@ -282,6 +316,8 @@ _FACEDATA_EMOJI.containing_type = _FACEDATA
 _DATAUPDATE.fields_by_name['facedata'].message_type = _FACEDATA
 _DATAUPDATE.fields_by_name['img_block'].message_type = _IMAGEBLOCK
 _DATAUPDATE.fields_by_name['img_hdr'].message_type = _IMAGEHEADER
+_DATAUPDATE.fields_by_name['utype'].enum_type = _DATAUPDATE_TYPE
+_DATAUPDATE_TYPE.containing_type = _DATAUPDATE
 DESCRIPTOR.message_types_by_name['ImageHeader'] = _IMAGEHEADER
 DESCRIPTOR.message_types_by_name['ImageBlock'] = _IMAGEBLOCK
 DESCRIPTOR.message_types_by_name['FaceData'] = _FACEDATA

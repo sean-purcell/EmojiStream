@@ -53,7 +53,7 @@ class Client(object):
         self.faces = cv2.imread(faces_path, -1)
         self.smiley_face = self.faces[3*72:4*72,0:72]
 
-        self.bg_img = blank_image = np.zeros((500,500,3), np.uint8)
+        self.bg_img = None
 
         self.sock = None
 
@@ -98,7 +98,7 @@ class Client(object):
         logging.info('sending message of len %s', len(data))
         packet = Packet(uid=self.other_user.uid,
             packet=data)
-        self.sock.sendto(packet.SerializeToString(), self.server_addr)
+        self.sock.sendto(chr(0)+packet.SerializeToString(), self.server_addr)
 
     def SendData(self):
         """Extracts and sends face position data to other client."""
@@ -109,7 +109,8 @@ class Client(object):
                 img_hdr=ImageHeader(
                     width=width,
                     height=height
-                )
+                ),
+                utype=DataUpdate.IMG_HDR
             )
 
             for i in xrange(20):
@@ -134,7 +135,8 @@ class Client(object):
                     x=x,
                     y=y,
                     size = int(size)
-                )
+                ),
+                utype = DataUpdate.FACEDATA
             )
             logging.info('x: %s, y: %s', x, y)
             self._Send(update)
@@ -156,7 +158,8 @@ class Client(object):
             arr = arr.reshape(block.width*block.height*3)
             block.pixels = arr.tostring()
             update = DataUpdate(
-                img_block=block)
+                img_block=block,
+                utype = DataUpdate.IMG_BLOCK)
             self._Send(update)
 
     def InitBgBlocks(self):
@@ -173,6 +176,7 @@ class Client(object):
                     bheight))
 
     def ParsePacket(self, raw_data):
+        logging.info('received packet of len %s', len(raw_data))
         packet = Packet()
         data = DataUpdate()
         try:
@@ -182,23 +186,24 @@ class Client(object):
             logging.exception('Invalid packet')
             return
 
-        if data.facedata is not None:
+        if data.utype == DataUpdate.FACEDATA:
             self.next_face = data.facedata
 
-        if data.img_hdr is not None:
+        if data.img_hdr == DataUpdate.IMG_HDR:
             hdr = data.img_hdr
             shape = (hdr.height, hdr.width, 3)
-            if self.bg_img is not None and self.bg_img.shape != shape:
+            if self.bg_img is None or self.bg_img.shape != shape:
                 self.bg_img = np.ndarray(shape=shape,
                     dtype='uint8')
 
-        if data.img_block is not None:
+        if data.img_block == DataUpdate.IMG_BLOCK:
             block = data.img_block
             if self.bg_img is not None:
                 bg_img = self.bg_img
                 height, width = bg_img.shape[:2]
                 if block.left + block.width < width and \
                         block.top + block.height < height:
+                    import pdb; pdb.set_trace()
                     shape = (height, width, 3)
                     arr = np.fromstring(block.pixels, dtype='uint8')
                     arr = arr.reshape(shape)
@@ -219,6 +224,8 @@ class Client(object):
                     raise 
 
     def RenderFrame(self):
+        if self.bg_img is None:
+            return
         img = self.bg_img.copy()
         if self.target_face is not None:
             self.current_face = self.target_face

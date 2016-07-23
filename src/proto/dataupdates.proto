@@ -34,4 +34,10 @@ message DataUpdate {
     string message = 2;
     ImageBlock img_block = 3;
     ImageHeader img_hdr = 4;
+    enum Type {
+        FACEDATA = 0;
+        IMG_BLOCK = 1;
+        IMG_HDR = 2;
+    }
+    Type utype = 5;
 }
