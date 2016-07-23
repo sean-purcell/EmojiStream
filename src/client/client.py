@@ -187,9 +187,6 @@ class Client(object):
             logging.exception('Invalid packet')
             return
 
-        if current_face is None:
-            current_face = target_face
-
         if data.utype == DataUpdate.FACEDATA:
             self.target_face = data.facedata
 
@@ -231,6 +228,8 @@ class Client(object):
             return
         img = self.bg_img.copy()
         if self.target_face is not None:
+            if self.current_face is None:
+                self.current_face = self.target_face
             self.current_face = self._InterpolateFaceData(self.current_face,
                                                             self.target_face)
 
