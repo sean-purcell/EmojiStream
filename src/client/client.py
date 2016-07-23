@@ -11,6 +11,7 @@ import cv2
 import os
 import random
 import numpy as np
+import math
 from os.path import join, abspath, dirname
 
 from detect.face import locate_face, init_detect, rotate_image
@@ -227,8 +228,6 @@ class Client(object):
             return
         img = self.bg_img.copy()
         if self.target_face is not None:
-            self.current_face = self.target_face
-
             self.current_face = self._InterpolateFaceData(self.current_face,
                                                             self.target_face)
 
@@ -240,7 +239,7 @@ class Client(object):
             x = self.current_face.x
             y = self.current_face.y
             face = rotate_image(face, 0)
-            width, height = current_face.shape[:2]
+            width, height = self.current_face.shape[:2]
             a = width/2
             b = width - width/2
 
