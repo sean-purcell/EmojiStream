@@ -104,7 +104,7 @@ class Client(object):
                     x=x,
                     y=y,
                     size = size
-                ))
+                )
             logging.info('sending message to %s:', self.other_uid)
             logging.info('x: %s, y: %s', x, y)
             p = Packet(packet=update.SerializeToString(), uid=self.other_uid)
