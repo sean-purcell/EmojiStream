@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+message ImageHeader {
+    int32 width = 1;
+    int32 height = 2;
+}
+
+message Image {
+    int32 topLeft = 1;
+    int32 topRight = 2;
+    int32 width = 3;
+    int32 height = 4;
+    bytes pixels = 5;
+}
+
+message FaceData {
+    enum Emoji {
+        HAPPY = 0;
+        SAD = 1;
+    }
+
+    Emoji emoji = 1;
+    int32 x = 2;
+    int32 y = 3;
+    int32 dx = 4;
+    int32 dy = 5;
+}
+
+message DataUpdate {
+    FaceData facedata = 1;
+    string message = 2;
+}
