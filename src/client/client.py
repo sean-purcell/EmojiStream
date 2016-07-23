@@ -37,6 +37,7 @@ class Client(object):
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
         self.framenum = 0
+        self.SEND_FREQ = 5
         self.detected = ()
 
         faces_path = join(dirname(abspath(__file__)),
@@ -53,9 +54,9 @@ class Client(object):
 
     def Connect(self, ident, addr):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.settimeout(0)
         self.server_addr = addr
         conn = ConnectionRequest(identifier=ident)
-        self.sock.settimeout(1)
         packet = conn.SerializeToString()
 
         while True:
@@ -64,8 +65,11 @@ class Client(object):
             try:
                 data, addr = self.sock.recvfrom(1024)
                 break
-            except socket.timeout:
-                pass
+            except (socket.timeout, socket.error), e:
+                if isinstance(e, socket.error) and e.errno != errno.EAGAIN:
+                    logging.exception('Socket error:')
+                    raise
+            time.sleep(1)
         try:
             req = ConnectionRequest()
             req.ParseFromString(data)
@@ -101,15 +105,12 @@ class Client(object):
             p = Packet(packet=update.SerializeToString(), uid=self.other_uid)
             self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
 
-    def SendReceiveLoop(self):
-        self.sock.settimeout(0.5)
-        while True:
-            logging.info('sending message to %s', self.other_uid)
-            p = Packet(packet='yoo', uid=self.other_uid)
-            self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
-            data, addr = None, None
+    def TryReceive(self):
+        # max 10 packets per frame
+        for i in xrange(10):
             try:
                 data, addr = self.sock.recvfrom(1024)
+                self.ReceivePacket(data)
             except (socket.timeout, socket.error), e:
                 if e.errno == errno.EAGAIN or isinstance(e, socket.timeout):
                     pass
@@ -122,7 +123,18 @@ class Client(object):
                     logging.info('Recevied message from %s: %s', addr, p.packet)
                 except DecodeError:
                     logging.exception('Invalid packet received: %s', data)
-            time.sleep(0.5)
+
+    def SendData(self):
+        pass
+
+    def RenderFrame(self):
+        pass
+
+    def SendReceiveLoop(self):
+        while True:
+            self.TryReceive()
+            self.SendData()
+            self.RenderFrame()
 
 def main(args):
     print 'Identifier:',
