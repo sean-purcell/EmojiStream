@@ -326,7 +326,7 @@ class Client(object):
                 message = line,
                 utype = DataUpdate.MESSAGE
             )
-            for i xrange(10):
+            for i in xrange(10):
                 self._Send(update)
 
     def SendReceiveLoop(self):
