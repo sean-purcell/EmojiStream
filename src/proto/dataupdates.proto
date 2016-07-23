@@ -24,6 +24,8 @@ message FaceData {
     int32 y = 3;
     int32 dx = 4;
     int32 dy = 5;
+    int32 theta = 6;
+    int32 dtheta = 7;
 }
 
 message DataUpdate {
