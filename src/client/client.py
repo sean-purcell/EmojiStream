@@ -61,6 +61,7 @@ class Client(object):
         self.header_sent = False
 
         self.unsent_blocks = None
+        self.cur_column = 0
 
         classifier_path = join(dirname(abspath(__file__)),
             '../../data/haar/haarcascade_frontalface_default.xml')
@@ -142,26 +143,51 @@ class Client(object):
             logging.info('x: %s, y: %s', x, y)
             self._Send(update)
 
-        for i in xrange(self.BLOCKS_PER_FRAME):
-            if not self.unsent_blocks:
-                self.InitBgBlocks()
-            block = random.choice(tuple(self.unsent_blocks))
-            self.unsent_blocks.remove(block)
+        if True:
+            height = self.local_img.shape[0]
+            left = self.cur_column*self.BLOCK_SIZE
+            width = min(self.BLOCK_SIZE, self.local_img.shape[1] - left)
             block = ImageBlock(
-                left=block[0],
-                top=block[1],
-                width=block[2],
-                height=block[3])
-            left = block.left
-            left, top = block.left, block.top
-            right, bot = left + block.width, top + block.height
-            arr = self.local_img[top:bot, left:right, :]
-            arr = arr.reshape(block.width*block.height*3)
-            block.pixels = arr.tostring()
+                left=self.cur_column*self.BLOCK_SIZE,
+                top=0,
+                height=height,
+                width=width)
+            raw_data = ['\0']*(len(range(0, height, self.BLOCK_SIZE))*3)
+            idx = 0
+            for y in xrange(0, height, self.BLOCK_SIZE):
+                for c in range(3):
+                    raw_data[idx] += \
+                        chr(int(np.mean(self.local_img[0:height,left:left+width,c])))
+                    idx += 1
+
+            block.pixels = ''.join(raw_data)
             update = DataUpdate(
                 img_block=block,
-                utype = DataUpdate.IMG_BLOCK)
+                utype=DataUpdate.IMG_BLOCK
+            )
             self._Send(update)
+                
+
+#        for i in xrange(self.BLOCKS_PER_FRAME):
+#            if not self.unsent_blocks:
+#                self.InitBgBlocks()
+#            block = random.choice(tuple(self.unsent_blocks))
+#            self.unsent_blocks.remove(block)
+#            block = ImageBlock(
+#                left=block[0],
+#                top=block[1],
+#                width=block[2],
+#                height=block[3])
+#            left = block.left
+#            left, top = block.left, block.top
+#            right, bot = left + block.width, top + block.height
+#            arr = self.local_img[top:bot, left:right, :]
+#            arr = arr.reshape(block.width*block.height*3)
+#            block.pixels = arr.tostring()
+#            update = DataUpdate(
+#                img_block=block,
+#                utype = DataUpdate.IMG_BLOCK)
+#            self._Send(update)
 
     def InitBgBlocks(self):
         height, width = self.local_img.shape[:2]
@@ -198,6 +224,17 @@ class Client(object):
                     dtype='uint8')
 
         if data.utype == DataUpdate.IMG_BLOCK:
+            block = data.img_block
+            height = self.bg_img.shape[0]
+            left = block.left
+            width = block.width
+            idx = 0
+            for y in xrange(0, height, self.BLOCK_SIZE):
+                for c in range(3):
+                    self.bg_img[0:height,left:left+width,c] = ord(block.pixels[idx])
+                    idx += 1
+
+        if False and data.utype == DataUpdate.IMG_BLOCK:
             block = data.img_block
             if self.bg_img is not None:
                 bg_img = self.bg_img
