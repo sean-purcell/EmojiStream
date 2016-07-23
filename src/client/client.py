@@ -189,22 +189,21 @@ class Client(object):
         if data.utype == DataUpdate.FACEDATA:
             self.next_face = data.facedata
 
-        if data.img_hdr == DataUpdate.IMG_HDR:
+        if data.utype == DataUpdate.IMG_HDR:
             hdr = data.img_hdr
             shape = (hdr.height, hdr.width, 3)
             if self.bg_img is None or self.bg_img.shape != shape:
                 self.bg_img = np.ndarray(shape=shape,
                     dtype='uint8')
 
-        if data.img_block == DataUpdate.IMG_BLOCK:
+        if data.utype == DataUpdate.IMG_BLOCK:
             block = data.img_block
             if self.bg_img is not None:
                 bg_img = self.bg_img
                 height, width = bg_img.shape[:2]
                 if block.left + block.width < width and \
                         block.top + block.height < height:
-                    import pdb; pdb.set_trace()
-                    shape = (height, width, 3)
+                    shape = (block.height, block.width, 3)
                     arr = np.fromstring(block.pixels, dtype='uint8')
                     arr = arr.reshape(shape)
                     left, top = block.left, block.top
