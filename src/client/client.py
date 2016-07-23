@@ -241,7 +241,7 @@ class Client(object):
             x = self.current_face.x
             y = self.current_face.y
             face = rotate_image(face, 0)
-            width, height = self.current_face.shape[:2]
+            width, height = face.shape[:2]
             a = width/2
             b = width - width/2
 
