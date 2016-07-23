@@ -30,8 +30,8 @@ def ParseArgs():
         '[%(name)s:%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d] '\
         '%(message)s') 
     handler.setFormatter(f)
-    handler.setLevel(logging.DEBUG)
-    root.setLevel(logging.DEBUG)
+    handler.setLevel(logging.INFO)
+    root.setLevel(logging.INFO)
     root.addHandler(handler)
 
     return parser.parse_args()
@@ -96,7 +96,7 @@ class Client(object):
 
     def _Send(self, update):
         data = update.SerializeToString()
-        logging.info('sending message of len %s', len(data))
+        logging.debug('sending message of len %s', len(data))
         packet = Packet(uid=self.other_user.uid,
             packet=data)
         self.sock.sendto(chr(0)+packet.SerializeToString(), self.server_addr)
@@ -177,7 +177,7 @@ class Client(object):
                     bheight))
 
     def ParsePacket(self, raw_data):
-        logging.info('received packet of len %s', len(raw_data))
+        logging.debug('received packet of len %s', len(raw_data))
         packet = Packet()
         data = DataUpdate()
         try:
@@ -241,7 +241,7 @@ class Client(object):
             x = self.current_face.x
             y = self.current_face.y
             face = rotate_image(face, 0)
-            width, height = self.current_face.shape[:2]
+            width, height = face.shape[:2]
             a = width/2
             b = width - width/2
 
