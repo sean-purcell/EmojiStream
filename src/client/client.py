@@ -152,7 +152,7 @@ class Client(object):
             left = block.left
             left, top = block.left, block.top
             right, bot = left + block.width, top + block.height
-            arr = self.local_img[left:right, top:bot, :]
+            arr = self.local_img[top:bot, left:right, :]
             arr = arr.reshape(block.width*block.height*3)
             block.pixels = arr.tostring()
             update = DataUpdate(
