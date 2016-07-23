@@ -73,20 +73,20 @@ class Client(object):
         try:
             req = ConnectionRequest()
             req.ParseFromString(data)
-            self.other_uid = req
+            self.other_user = req
         except DecodeError:
             logging.exception('Invalid connection data received')
             raise
 
     def SendData(self):
         """Extracts and sends face position data to other client."""
-        ret, img = camera.read()
+        ret, img = self.camera.read()
 
-        if framenum % 5 == 0:
+        if self.framenum % 5 == 0:
             ndetected = locate_face(img)
             if len(ndetected):
                 detected = ndetected
-        framenum += 1
+        self.framenum += 1
         if len(detected):
             x = detected[0] + detected[2] / 2
             y = detected[1] + detected[3] / 2
@@ -96,42 +96,31 @@ class Client(object):
             size = max(abs(width), abs(height))
             update = DataUpdate(
                 facedata=FaceData(
-                    emoji=FaceData.Emoji.HAPPY,
+                    emoji=FaceData.HAPPY,
                     x=x,
                     y=y,
-                    size = size
+                    size = int(size)
                 ))
-            logging.info('sending message to %s:', self.other_uid)
+            logging.info('sending message to %s:', self.other_user.uid)
             logging.info('x: %s, y: %s', x, y)
-            p = Packet(packet=update.SerializeToString(), uid=self.other_uid)
+            p = Packet(packet=update.SerializeToString(), uid=self.other_user.uid)
             self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
 
     def TryReceive(self):
-        # max 10 packets per frame
-        for i in xrange(10):
-            try:
-                data, addr = self.sock.recvfrom(1024)
-                self.ReceivePacket(data)
-            except (socket.timeout, socket.error), e:
-                if e.errno == errno.EAGAIN or isinstance(e, socket.timeout):
-                    pass
-                else:
-                    raise
-            if data:
-                try:
-                    p = Packet()
-                    p.ParseFromString(data)
-                    logging.info('Recevied message from %s: %s', addr, p.packet)
-                except DecodeError:
-                    logging.exception('Invalid packet received: %s', data)
+        pass
 
     def RenderFrame(self):
         self.current_face = self._InterpolateFaceData(self.current_face,
                                                         self.target_face)
 
         face = cv2.resize(self.smiley_face,
-                          dsize=(size, size),
+                          dsize=(self.current_face.size,
+                                 self.current_face.size),
                           interpolation = cv2.INTER_CUBIC)
+
+        ret, img = self.camera.read()
+        x = self.current_face.x
+        y = self.current_face.y
         face = rotate_image(face, 0)
         width, height = current_face.shape[:2]
         a = width/2
@@ -182,8 +171,8 @@ def main(args):
     client.Connect(ident, server_addr)
 
     logging.debug('connection to %s, %s',
-                  client.other_uid.ipaddr,
-                  client.other_uid.port)
+                  client.other_user.ipaddr,
+                  client.other_user.port)
     client.SendReceiveLoop()
 
 if __name__ == '__main__':
