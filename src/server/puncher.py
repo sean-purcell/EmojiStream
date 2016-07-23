@@ -31,7 +31,8 @@ def configure():
 def parse_request(data, addr):
     logging.info('Received request of len %s from %s', len(data), addr)
     try:
-        req = ConnectionRequest().ParseFromString(data)
+        req = ConnectionRequest()
+        req.ParseFromString(data)
     except DecodeError:
         logging.exception('Failed to decode')
         return None
@@ -49,6 +50,10 @@ def connect_users(user1, user2, sock):
     sock.sendto(packet1, (user1.ipaddr, user1.port))
     sock.sendto(packet2, (user2.ipaddr, user2.port))
 
+def register(user_dict, user_data):
+    logging.info('registering user for identifier %s', user_data.identifier)
+    user_dict[user_data.identifier] = user_data
+
 def server_loop(sock):
     user_dict = {}
     while True:
@@ -59,16 +64,16 @@ def server_loop(sock):
             if ident in user_dict:
                 user2 = user_dict[ident]
                 if time.time() - user2.time > TIMEOUT:
-                    user_dict[ident] = user_data
-                    continue
-                if (user2.ipaddr, user2.port) == \
+                    register(user_dict, user_data)
+                elif (user2.ipaddr, user2.port) == \
                         (user_data.ipaddr, user_data.port):
-                    user_dict[ident] = user_data
-                    continue
-                connect_users(user_dict[ident], user_data, server)
-                user_dict.pop(ident)
+                    register(user_dict, user_data)
+                else:
+                    logging.info('connecting users with identifier %s', ident)
+                    connect_users(user_dict[ident], user_data, server)
+                    user_dict.pop(ident)
             else:
-                user_dict[ident] = user_data
+                register(user_dict, user_data)
 
 def main():
     args = configure()
