@@ -26,7 +26,7 @@ message FaceData {
     int32 dy = 5;
     int32 theta = 6;
     int32 dtheta = 7;
-    int32 width = 8;
+    int32 size = 8;
 }
 
 message DataUpdate {
