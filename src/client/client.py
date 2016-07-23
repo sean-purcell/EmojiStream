@@ -12,6 +12,7 @@ import os
 import random
 import numpy as np
 import math
+import select
 from os.path import join, abspath, dirname
 
 from detect.face import locate_face, init_detect, rotate_image
@@ -41,6 +42,7 @@ class Client(object):
     BLOCK_SIZE = 17
     BLOCKS_PER_FRAME = 10
     CURS_PER_FRAME = 10
+    MESSAGE_DURATION = 5
 
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
@@ -57,7 +59,7 @@ class Client(object):
 
         self.bg_img = None
 
-        self.outgoing_message_q = []
+        self.outgoing_message_q = ['test']
         self.messages_rendering = [] #(msg, x, y, framesLeft)
 
         self.sock = None
@@ -144,10 +146,7 @@ class Client(object):
                 ),
                 utype = DataUpdate.FACEDATA
             )
-            if self.outgoing_message_q:
-                update.message = outgoing_message_q[0]
-                outgoing_message_q = outgoing_message_q[1:]
-            logging.info('x: %s, y: %s', x, y)
+            logging.debug('x: %s, y: %s', x, y)
             self._Send(update)
 
         for i in range(self.CURS_PER_FRAME):
@@ -163,11 +162,8 @@ class Client(object):
             idx = 0
             for y in xrange(0, height, self.BLOCK_SIZE):
                 for c in range(3):
-                    try:
-                        raw_data[idx] = \
-                            chr(int(np.mean(self.local_img[y:y+self.BLOCK_SIZE,left:left+width,c])))
-                    except:
-                        import pdb; pdb.set_trace()
+                    raw_data[idx] = \
+                        chr(int(np.mean(self.local_img[y:y+self.BLOCK_SIZE,left:left+width,c])))
                     idx += 1
 
             block.pixels = ''.join(raw_data)
@@ -228,7 +224,7 @@ class Client(object):
 
         if data.message:
             self.messages_rendering.append(
-                [data.message, 50, 50, self.MESSAGE_DURATION])
+                [data.message, 50, 50, self.MESSAGE_DURATION + time.time()])
 
         if data.utype == DataUpdate.FACEDATA:
             self.target_face = data.facedata
@@ -287,7 +283,7 @@ class Client(object):
                 3, 255)
             msg[3]=msg[3]-1
 
-        self.messages_rendering =filter(lambda l: l[3]>0,
+        self.messages_rendering =filter(lambda l: l[3] > time.time(),
                                         self.messages_rendering)
 
         if self.target_face is not None:
@@ -322,11 +318,22 @@ class Client(object):
         ret, img = self.camera.read()
         self.local_img = img
 
+    def TrySendMessage(self):
+        res, _, _ = select.select([0], [], [], 0)
+        if 0 in res:
+            line = raw_input()
+            update = DataUpdate(
+                message = line,
+                utype = DataUpdate.MESSAGE
+            )
+            self._Send(update)
+
     def SendReceiveLoop(self):
         while True:
             self.CaptureFrame()
             self.TryReceive()
             self.SendData()
+            self.TrySendMessage()
             self.RenderFrame()
             self.framenum += 1
             cv2.waitKey(1)

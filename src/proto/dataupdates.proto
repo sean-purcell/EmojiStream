@@ -38,6 +38,7 @@ message DataUpdate {
         FACEDATA = 0;
         IMG_BLOCK = 1;
         IMG_HDR = 2;
+        MESSAGE = 3;
     }
     Type utype = 5;
 }
