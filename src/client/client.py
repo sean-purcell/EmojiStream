@@ -160,7 +160,7 @@ class Client(object):
             self._Send(update)
 
     def InitBgBlocks(self):
-        height, width = self.bg_img.shape[:2]
+        height, width = self.local_img.shape[:2]
         self.unsent_blocks = set()
         for x in xrange(0, width, self.BLOCK_SIZE):
             for y in xrange(0, height, self.BLOCK_SIZE):
