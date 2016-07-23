@@ -187,6 +187,9 @@ class Client(object):
             logging.exception('Invalid packet')
             return
 
+        if current_face is None:
+            current_face = target_face
+
         if data.utype == DataUpdate.FACEDATA:
             self.target_face = data.facedata
 
