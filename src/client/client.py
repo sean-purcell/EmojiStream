@@ -38,7 +38,7 @@ def ParseArgs():
 class Client(object):
     SEND_FREQ = 5
     BLOCK_SIZE = 17
-    BLOCKS_PER_FRAME = 1
+    BLOCKS_PER_FRAME = 10
 
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
@@ -187,7 +187,7 @@ class Client(object):
             return
 
         if data.utype == DataUpdate.FACEDATA:
-            self.next_face = data.facedata
+            self.target_face = data.facedata
 
         if data.utype == DataUpdate.IMG_HDR:
             hdr = data.img_hdr
