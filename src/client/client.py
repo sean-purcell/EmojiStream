@@ -278,11 +278,11 @@ class Client(object):
     """
         f = lambda a, b : a + int(math.ceil((b-a)/5.0))
         return FaceData(
-            emoji = self.target_face.emoji,
-            x = f(self.current_face.x, self.target_face.x),
-            y = f(self.current_face.y, self.target_face.y),
-            theta = f(self.current_face.theta, self.target_face.theta),
-            size =f(self.current_face.size, self.target_face.size)
+            emoji = target.emoji,
+            x = f(current.x, target.x),
+            y = f(current.y, target.y),
+            theta = f(current.theta, target.theta),
+            size =f(current.size, target.size)
         )
 
 
