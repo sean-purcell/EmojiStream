@@ -81,6 +81,7 @@ def main():
     server = socket.socket(socket.AF_INET,
         socket.SOCK_DGRAM)
 
+    logging.info('Starting server on %s', (UDP_IP, args.port))
     server.bind((UDP_IP, args.port))
 
     server_loop(server)
