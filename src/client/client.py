@@ -9,6 +9,8 @@ import errno
 import time
 import cv2
 import os
+import random
+import numpy as np
 from os.path import join, abspath, dirname
 
 from detect.face import locate_face, init_detect, rotate_image
@@ -35,6 +37,8 @@ def ParseArgs():
 
 class Client(object):
     SEND_FREQ = 5
+    BLOCK_SIZE = 17
+    BLOCKS_PER_FRAME = 1
 
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
@@ -52,6 +56,10 @@ class Client(object):
         self.bg_img = None
 
         self.sock = None
+
+        self.header_sent = False
+
+        self.unsent_blocks = None
 
         classifier_path = join(dirname(abspath(__file__)),
             '../../data/haar/haarcascade_frontalface_default.xml')
@@ -85,16 +93,33 @@ class Client(object):
             logging.exception('Invalid connection data received')
             raise
 
+    def _Send(self, update):
+        data = update.SerializeToString()
+        logging.info('sending message of len %s', len(data))
+        packet = Packet(uid=self.other_user.uid,
+            packet=data)
+        self.sock.sendto(packet.SerializeToString(), self.server_addr)
+
     def SendData(self):
         """Extracts and sends face position data to other client."""
-        data = DataUpdate()
-        ret, img = self.camera.read()
 
-        if self.framenum % 5 == 0:
-            ndetected = locate_face(img)
-            if len(ndetected):
-                detected = ndetected
-        self.framenum += 1
+        if not self.header_sent:
+            height, width = self.local_img.shape[:2]
+            update = DataUpdate(
+                img_hdr=ImageHeader(
+                    width=width,
+                    height=height
+                )
+            )
+
+            for i in xrange(20):
+                self._Send(update)
+            self.header_sent=True
+
+        detected = ()
+        if self.framenum % self.SEND_FREQ == 0:
+            img = self.local_img
+            detected = locate_face(img)
         if len(detected):
             x = detected[0] + detected[2] / 2
             y = detected[1] + detected[3] / 2
@@ -111,11 +136,38 @@ class Client(object):
                     size = int(size)
                 )
             )
-            logging.info('sending message to %s:', self.other_user.uid)
             logging.info('x: %s, y: %s', x, y)
-            p = Packet(packet=update.SerializeToString(), uid=self.other_user.uid)
-            self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
-        
+            self._Send(update)
+
+        for i in xrange(self.BLOCKS_PER_FRAME):
+            if not self.unsent_blocks:
+                self.InitBgBlocks()
+            block = random.choice(tuple(self.unsent_blocks))
+            self.unsent_blocks.remove(block)
+            left = block.left
+            arr = self.local_img[block.left:block.left+block.width,
+            left, top = block.left, block.top
+            right, bot = left + block.width, top + block.height
+            arr = self.local_img[left:right, top:bot, :]
+            arr = arr.reshape(block.width*block.height*3)
+            block.pixels = arr.tostring()
+            update = DataUpdate(
+                img_block=block)
+            self._Send(update)
+
+    def InitBgBlocks(self):
+        height, width = self.bg_img.shape[:2]
+        self.unsent_blocks = set()
+        for x in xrange(0, width, self.BLOCK_SIZE):
+            for y in xrange(0, height, self.BLOCK_SIZE):
+                bwidth = min(self.BLOCK_SIZE, width - x)
+                bheight = min(self.BLOCK_SIZE, height - y)
+                self.unsent_blocks.add(ImageBlock(
+                    left=x,
+                    top=y,
+                    width=bwidth,
+                    height=bheight))
+
     def ParsePacket(self, data):
         packet = Packet()
         data = DataUpdate()
@@ -129,27 +181,26 @@ class Client(object):
         if data.facedata is not None:
             self.next_face = data.facedata
 
-        if self.img_hdr is not None:
-            hdr = self.img_hdr
-            shape = (hdr.width, hdr.height, 3)
+        if data.img_hdr is not None:
+            hdr = data.img_hdr
+            shape = (hdr.height, hdr.width, 3)
             if self.bg_img is not None and self.bg_img.shape != shape:
-                self.bg_img = np.ndarray(shape=(hdr.width, hdr.height, 3),
+                self.bg_img = np.ndarray(shape=shape,
                     dtype='uint8')
 
-        if self.img_block is not None:
-            block = self.img_block
-            idx = 0
-            bg_img = self.bg_img
-            width, height = bg_img.shape[:2]
-            if block.left + block.width < width and \
-                    block.top + block.height < height:
-            
-                for x in xrange(block.left, block.left+block.width):
-                    for y in xrange(block.top, block.top+block.height):
-                        for i in xrange(3):
-                            bg_img[x,y,i] = block.pixels[idx]
-                            idx += 1
-
+        if data.img_block is not None:
+            block = data.img_block
+            if self.bg_img is not None:
+                bg_img = self.bg_img
+                height, width = bg_img.shape[:2]
+                if block.left + block.width < width and \
+                        block.top + block.height < height:
+                    shape = (height, width, 3)
+                    arr = np.fromstring(block.pixels, dtype='uint8')
+                    arr = arr.reshape(shape)
+                    left, top = block.left, block.top
+                    right, bot = left + block.width, top + block.height
+                    self.bg_img[top:bot, left:right, :] = arr
 
     def TryReceive(self):
         # max 10 packets per frame
@@ -195,11 +246,18 @@ class Client(object):
         # Display the resulting frame
         cv2.imshow('silly video chat', img)
 
+    def CaptureFrame(self):
+        ret, img = self.camera.read()
+        self.local_img = img
+
     def SendReceiveLoop(self):
         while True:
+            self.CaptureFrame()
             self.TryReceive()
             self.SendData()
             self.RenderFrame()
+            self.framenum += 1
+            self.waitKey(1)
 
     @staticmethod
     def _InterpolateFaceData(current, target):
