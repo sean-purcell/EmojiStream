@@ -98,7 +98,8 @@ class Client(object):
                 facedata=FaceData(
                     emoji=FaceData.Emoji.HAPPY,
                     x=x,
-                    y=y
+                    y=y,
+                    size = size
                 ))
             logging.info('sending message to %s:', self.other_uid)
             logging.info('x: %s, y: %s', x, y)
@@ -125,13 +126,52 @@ class Client(object):
                     logging.exception('Invalid packet received: %s', data)
 
     def RenderFrame(self):
-        pass
+        self.current_face = self._InterpolateFaceData(self.current_face,
+                                                        self.target_face)
+
+        face = cv2.resize(self.smiley_face,
+                          dsize=(size, size),
+                          interpolation = cv2.INTER_CUBIC)
+        face = rotate_image(face, 0)
+        width, height = current_face.shape[:2]
+        a = width/2
+        b = width - width/2
+
+        try:
+            for c in range(0,3):
+                img[y-a:y+b, x-a:x+b, c] = \
+                face[:,:,c] * (face[:,:,3]/255.0) +  img[y-a:y+b, x-a:x+b, c] * (1.0 - face[:,:,3]/255.0)
+        except ValueError:
+            pass
+
+        # Display the resulting frame
+        cv2.imshow('silly video chat', img)
 
     def SendReceiveLoop(self):
         while True:
             self.TryReceive()
             self.SendData()
             self.RenderFrame()
+
+    @staticmethod
+    def _InterpolateFaceData(current, target):
+        """Exactly what it says on the tin.
+
+        Args:
+            current: FaceData
+            target: FaceData
+        Returns:
+            FaceData
+    """
+        f = lambda a, b : a + int(math.ceil((b-a)/5.0))
+        return FaceData(
+            emoji = target.emoji,
+            x = f(current.x, target.x),
+            y = f(current.y, target.y),
+            theta = f(current.theta, target.theta),
+            size =f(current.size, target.size)
+        )
+
 
 def main(args):
     print 'Identifier:',
