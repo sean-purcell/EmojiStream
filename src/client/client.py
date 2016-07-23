@@ -144,8 +144,12 @@ class Client(object):
                 self.InitBgBlocks()
             block = random.choice(tuple(self.unsent_blocks))
             self.unsent_blocks.remove(block)
+            block = ImageBlock(
+                left=block[0],
+                top=block[1],
+                width=block[2],
+                height=block[3])
             left = block.left
-            arr = self.local_img[block.left:block.left+block.width,
             left, top = block.left, block.top
             right, bot = left + block.width, top + block.height
             arr = self.local_img[left:right, top:bot, :]
@@ -162,17 +166,17 @@ class Client(object):
             for y in xrange(0, height, self.BLOCK_SIZE):
                 bwidth = min(self.BLOCK_SIZE, width - x)
                 bheight = min(self.BLOCK_SIZE, height - y)
-                self.unsent_blocks.add(ImageBlock(
-                    left=x,
-                    top=y,
-                    width=bwidth,
-                    height=bheight))
+                self.unsent_blocks.add((
+                    x,
+                    y,
+                    bwidth,
+                    bheight))
 
-    def ParsePacket(self, data):
+    def ParsePacket(self, raw_data):
         packet = Packet()
         data = DataUpdate()
         try:
-            packet.ParseFromString(data)
+            packet.ParseFromString(raw_data)
             data.ParseFromString(packet.packet)
         except DecodeError:
             logging.exception('Invalid packet')
@@ -257,7 +261,7 @@ class Client(object):
             self.SendData()
             self.RenderFrame()
             self.framenum += 1
-            self.waitKey(1)
+            cv2.waitKey(1)
 
     @staticmethod
     def _InterpolateFaceData(current, target):
