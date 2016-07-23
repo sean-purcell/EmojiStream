@@ -8,6 +8,8 @@ import socket
 import errno
 import time
 import cv2
+import os
+from os.path import join, abspath, dirname
 
 from detect.face import locate_face, init_detect, rotate_image
 from google.protobuf.message import DecodeError
@@ -36,10 +38,17 @@ class Client(object):
         self.camera =  cv2.VideoCapture(0)
         self.framenum = 0
         self.detected = ()
-        self.faces = cv2.imread("../../data/images/emojis.png", -1)
+
+        faces_path = join(dirname(abspath(__file__)),
+            '../../data/images/emojis.png')
+        self.faces = cv2.imread(faces_path, -1)
         self.smiley_face = self.faces[3*72:4*72,0:72]
 
-        init_detect("../../data/haar/haarcascade_frontalface_default.xml")
+        self.sock = None
+
+        classifier_path = join(dirname(abspath(__file__)),
+            '../../data/haar/haarcascade_frontalface_default.xml')
+        init_detect(classifier_path)
 
 
     def Connect(self, ident, addr):
