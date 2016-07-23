@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message ConnectionRequest {
+    string identifier = 1;
+    string ipaddr = 2;
+    uint32 port = 3;
+    double time = 4;
+}
+
