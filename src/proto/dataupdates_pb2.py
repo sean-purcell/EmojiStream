@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='dataupdates.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x11\x64\x61taupdates.proto\",\n\x0bImageHeader\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\"Y\n\x05Image\x12\x0f\n\x07topLeft\x18\x01 \x01(\x05\x12\x10\n\x08topRight\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\x12\x0e\n\x06pixels\x18\x05 \x01(\x0c\"u\n\x08\x46\x61\x63\x65\x44\x61ta\x12\x1e\n\x05\x65moji\x18\x01 \x01(\x0e\x32\x0f.FaceData.Emoji\x12\t\n\x01x\x18\x02 \x01(\x05\x12\t\n\x01y\x18\x03 \x01(\x05\x12\n\n\x02\x64x\x18\x04 \x01(\x05\x12\n\n\x02\x64y\x18\x05 \x01(\x05\"\x1b\n\x05\x45moji\x12\t\n\x05HAPPY\x10\x00\x12\x07\n\x03SAD\x10\x01\":\n\nDataUpdate\x12\x1b\n\x08\x66\x61\x63\x65\x64\x61ta\x18\x01 \x01(\x0b\x32\t.FaceData\x12\x0f\n\x07message\x18\x02 \x01(\tb\x06proto3')
+  serialized_pb=_b('\n\x11\x64\x61taupdates.proto\",\n\x0bImageHeader\x12\r\n\x05width\x18\x01 \x01(\x05\x12\x0e\n\x06height\x18\x02 \x01(\x05\"Y\n\x05Image\x12\x0f\n\x07topLeft\x18\x01 \x01(\x05\x12\x10\n\x08topRight\x18\x02 \x01(\x05\x12\r\n\x05width\x18\x03 \x01(\x05\x12\x0e\n\x06height\x18\x04 \x01(\x05\x12\x0e\n\x06pixels\x18\x05 \x01(\x0c\"\x94\x01\n\x08\x46\x61\x63\x65\x44\x61ta\x12\x1e\n\x05\x65moji\x18\x01 \x01(\x0e\x32\x0f.FaceData.Emoji\x12\t\n\x01x\x18\x02 \x01(\x05\x12\t\n\x01y\x18\x03 \x01(\x05\x12\n\n\x02\x64x\x18\x04 \x01(\x05\x12\n\n\x02\x64y\x18\x05 \x01(\x05\x12\r\n\x05theta\x18\x06 \x01(\x05\x12\x0e\n\x06\x64theta\x18\x07 \x01(\x05\"\x1b\n\x05\x45moji\x12\t\n\x05HAPPY\x10\x00\x12\x07\n\x03SAD\x10\x01\":\n\nDataUpdate\x12\x1b\n\x08\x66\x61\x63\x65\x64\x61ta\x18\x01 \x01(\x0b\x32\t.FaceData\x12\x0f\n\x07message\x18\x02 \x01(\tb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -42,8 +42,8 @@ _FACEDATA_EMOJI = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=248,
-  serialized_end=275,
+  serialized_start=280,
+  serialized_end=307,
 )
 _sym_db.RegisterEnumDescriptor(_FACEDATA_EMOJI)
 
@@ -187,6 +187,20 @@ _FACEDATA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='theta', full_name='FaceData.theta', index=5,
+      number=6, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='dtheta', full_name='FaceData.dtheta', index=6,
+      number=7, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -200,8 +214,8 @@ _FACEDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=158,
-  serialized_end=275,
+  serialized_start=159,
+  serialized_end=307,
 )
 
 
@@ -238,8 +252,8 @@ _DATAUPDATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=277,
-  serialized_end=335,
+  serialized_start=309,
+  serialized_end=367,
 )
 
 _FACEDATA.fields_by_name['emoji'].enum_type = _FACEDATA_EMOJI
