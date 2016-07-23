@@ -40,6 +40,7 @@ class Client(object):
     SEND_FREQ = 5
     BLOCK_SIZE = 17
     BLOCKS_PER_FRAME = 10
+    CURS_PER_FRAME = 10
 
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
@@ -143,7 +144,7 @@ class Client(object):
             logging.info('x: %s, y: %s', x, y)
             self._Send(update)
 
-        if True:
+        for i in range(self.CURS_PER_FRAME):
             height = self.local_img.shape[0]
             left = self.cur_column*self.BLOCK_SIZE
             width = min(self.BLOCK_SIZE, self.local_img.shape[1] - left)
@@ -156,8 +157,11 @@ class Client(object):
             idx = 0
             for y in xrange(0, height, self.BLOCK_SIZE):
                 for c in range(3):
-                    raw_data[idx] += \
-                        chr(int(np.mean(self.local_img[0:height,left:left+width,c])))
+                    try:
+                        raw_data[idx] = \
+                            chr(int(np.mean(self.local_img[y:y+self.BLOCK_SIZE,left:left+width,c])))
+                    except:
+                        import pdb; pdb.set_trace()
                     idx += 1
 
             block.pixels = ''.join(raw_data)
@@ -166,6 +170,9 @@ class Client(object):
                 utype=DataUpdate.IMG_BLOCK
             )
             self._Send(update)
+            self.cur_column += 1
+            if self.cur_column * self.BLOCK_SIZE > self.local_img.shape[1]:
+                self.cur_column = 0
                 
 
 #        for i in xrange(self.BLOCKS_PER_FRAME):
@@ -231,7 +238,7 @@ class Client(object):
             idx = 0
             for y in xrange(0, height, self.BLOCK_SIZE):
                 for c in range(3):
-                    self.bg_img[0:height,left:left+width,c] = ord(block.pixels[idx])
+                    self.bg_img[y:y+self.BLOCK_SIZE,left:left+width,c] = ord(block.pixels[idx])
                     idx += 1
 
         if False and data.utype == DataUpdate.IMG_BLOCK:
