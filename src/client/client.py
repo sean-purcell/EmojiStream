@@ -53,7 +53,7 @@ class Client(object):
         self.faces = cv2.imread(faces_path, -1)
         self.smiley_face = self.faces[3*72:4*72,0:72]
 
-        self.bg_img = None
+        self.bg_img = blank_image = np.zeros((500,500,3), np.uint8)
 
         self.sock = None
 
@@ -228,7 +228,7 @@ class Client(object):
                                  self.current_face.size),
                           interpolation = cv2.INTER_CUBIC)
 
-        ret, img = self.camera.read()
+        img = self.bg_img.copy()
         x = self.current_face.x
         y = self.current_face.y
         face = rotate_image(face, 0)
