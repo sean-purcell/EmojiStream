@@ -12,4 +12,3 @@ message Packet {
     fixed64 uid = 1;
     bytes packet = 2;
 }
-

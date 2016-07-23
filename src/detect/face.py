@@ -32,7 +32,7 @@ def rotate_point(pos, img, angle):
 
 def locate_face(img):
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    for angle in [0, -25, 25]:
+    for angle in [0, 10, -15, -25, 25]:
         rimg = rotate_image(img, angle)
         detected = face.detectMultiScale(rimg, **settings)
         if len(detected):
