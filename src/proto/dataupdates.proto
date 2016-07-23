@@ -5,9 +5,9 @@ message ImageHeader {
     int32 height = 2;
 }
 
-message Image {
-    int32 topLeft = 1;
-    int32 topRight = 2;
+message ImageBlock {
+    int32 left = 1;
+    int32 top = 2;
     int32 width = 3;
     int32 height = 4;
     bytes pixels = 5;
@@ -32,4 +32,6 @@ message FaceData {
 message DataUpdate {
     FaceData facedata = 1;
     string message = 2;
+    ImageBlock img_block = 3;
+    ImageHeader img_hdr = 4;
 }

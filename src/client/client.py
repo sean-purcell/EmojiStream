@@ -34,16 +34,19 @@ def ParseArgs():
     return parser.parse_args()
 
 class Client(object):
+    SEND_FREQ = 5
+
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
         self.framenum = 0
-        self.SEND_FREQ = 5
         self.detected = ()
 
         faces_path = join(dirname(abspath(__file__)),
             '../../data/images/emojis.png')
         self.faces = cv2.imread(faces_path, -1)
         self.smiley_face = self.faces[3*72:4*72,0:72]
+
+        self.bg_img = None
 
         self.sock = None
 
@@ -56,6 +59,7 @@ class Client(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.settimeout(0)
         self.server_addr = addr
+
         conn = ConnectionRequest(identifier=ident)
         packet = conn.SerializeToString()
 
@@ -80,6 +84,7 @@ class Client(object):
 
     def SendData(self):
         """Extracts and sends face position data to other client."""
+        data = DataUpdate()
         ret, img = camera.read()
 
         if framenum % 5 == 0:
@@ -94,35 +99,62 @@ class Client(object):
             width = detected[2]
             height = detected[3]
             size = max(abs(width), abs(height))
-            update = DataUpdate(
-                facedata=FaceData(
+            update.facedata = FaceData(
                     emoji=FaceData.Emoji.HAPPY,
                     x=x,
                     y=y
-                ))
+                )
             logging.info('sending message to %s:', self.other_uid)
             logging.info('x: %s, y: %s', x, y)
             p = Packet(packet=update.SerializeToString(), uid=self.other_uid)
             self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
+        
+    def ParsePacket(self, data):
+        packet = Packet()
+        data = DataUpdate()
+        try:
+            packet.ParseFromString(data)
+            data.ParseFromString(packet.packet)
+        except DecodeError:
+            logging.exception('Invalid packet')
+            return
+
+        if data.facedata is not None:
+            self.next_face = data.facedata
+
+        if self.img_hdr is not None:
+            hdr = self.img_hdr
+            shape = (hdr.width, hdr.height, 3)
+            if self.bg_img is not None and self.bg_img.shape != shape:
+                self.bg_img = np.ndarray(shape=(hdr.width, hdr.height, 3),
+                    dtype='uint8')
+
+        if self.img_block is not None:
+            block = self.img_block
+            idx = 0
+            bg_img = self.bg_img
+            width, height = bg_img.shape[:2]
+            if block.left + block.width < width and \
+                    block.top + block.height < height:
+            
+                for x in xrange(block.left, block.left+block.width):
+                    for y in xrange(block.top, block.top+block.height):
+                        for i in xrange(3):
+                            bg_img[x,y,i] = block.pixels[idx]
+                            idx += 1
+
 
     def TryReceive(self):
         # max 10 packets per frame
         for i in xrange(10):
             try:
                 data, addr = self.sock.recvfrom(1024)
-                self.ReceivePacket(data)
+                self.ParsePacket(data)
             except (socket.timeout, socket.error), e:
                 if e.errno == errno.EAGAIN or isinstance(e, socket.timeout):
-                    pass
+                    break
                 else:
-                    raise
-            if data:
-                try:
-                    p = Packet()
-                    p.ParseFromString(data)
-                    logging.info('Recevied message from %s: %s', addr, p.packet)
-                except DecodeError:
-                    logging.exception('Invalid packet received: %s', data)
+                    raise 
 
     def RenderFrame(self):
         pass
