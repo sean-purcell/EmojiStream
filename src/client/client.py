@@ -145,7 +145,6 @@ class Client(object):
             block = random.choice(tuple(self.unsent_blocks))
             self.unsent_blocks.remove(block)
             left = block.left
-            arr = self.local_img[block.left:block.left+block.width,
             left, top = block.left, block.top
             right, bot = left + block.width, top + block.height
             arr = self.local_img[left:right, top:bot, :]
