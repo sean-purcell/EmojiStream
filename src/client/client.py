@@ -42,7 +42,7 @@ class Client(object):
     BLOCK_SIZE = 17
     BLOCKS_PER_FRAME = 10
     CURS_PER_FRAME = 10
-    MESSAGE_DURATION = 5
+    MESSAGE_DURATION = 10
 
     def __init__(self):
         self.camera =  cv2.VideoCapture(0)
@@ -326,7 +326,8 @@ class Client(object):
                 message = line,
                 utype = DataUpdate.MESSAGE
             )
-            self._Send(update)
+            for i xrange(10):
+                self._Send(update)
 
     def SendReceiveLoop(self):
         while True:
