@@ -41,6 +41,9 @@ class Client(object):
         self.framenum = 0
         self.detected = ()
 
+        self.current_face = None
+        self.target_face = None
+
         faces_path = join(dirname(abspath(__file__)),
             '../../data/images/emojis.png')
         self.faces = cv2.imread(faces_path, -1)
@@ -109,7 +112,6 @@ class Client(object):
                 )
             )
             logging.info('sending message to %s:', self.other_user.uid)
-                    size = size )
             logging.info('x: %s, y: %s', x, y)
             p = Packet(packet=update.SerializeToString(), uid=self.other_user.uid)
             self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
@@ -162,6 +164,11 @@ class Client(object):
                     raise 
 
     def RenderFrame(self):
+        if self.target_face is None:
+            return
+        if self.current_face is None:
+            self.current_face = self.target_face
+
         self.current_face = self._InterpolateFaceData(self.current_face,
                                                         self.target_face)
 
