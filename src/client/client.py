@@ -177,7 +177,7 @@ class Client(object):
                                  self.current_face.size),
                           interpolation = cv2.INTER_CUBIC)
 
-        ret, img = self.camera.read()
+        img = self.bg_img.copy()
         x = self.current_face.x
         y = self.current_face.y
         face = rotate_image(face, 0)
