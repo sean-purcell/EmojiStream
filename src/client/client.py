@@ -5,6 +5,8 @@ import sys
 import argparse
 import logging
 import socket
+import errno
+import time
 
 from proto.conn_pb2 import ConnectionRequest
 from google.protobuf.message import DecodeError
@@ -43,19 +45,28 @@ def connect(ident, addr):
     try:
         req = ConnectionRequest()
         req.ParseFromString(data)
-        return req
+        return sock, req
     except DecodeError:
         logging.exception('Invalid connection data received')
         raise
 
 def chat_loop(sock, ouser):
-    sock.settimeout(0)
+    sock.settimeout(0.5)
     oaddr = (ouser.ipaddr, ouser.port)
     while True:
+        logging.info('sending message to %s', oaddr)
         sock.sendto('yoo', oaddr)
-        data, addr = sock.recvfrom(10)
+        data, addr = None, None
+        try:
+            data, addr = sock.recvfrom(10)
+        except (socket.timeout, socket.error), e:
+            if e.errno == errno.EAGAIN or isinstance(e, socket.timeout):
+                pass
+            else:
+                raise
         if data:
             logging.info('Recevied message from %s: %s', addr, data)
+        time.sleep(0.5)
 
 def main(args):
     print 'Identifier:',
