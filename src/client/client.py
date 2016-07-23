@@ -57,6 +57,9 @@ class Client(object):
 
         self.bg_img = None
 
+        self.outgoing_message_q = []
+        self.messages_rendering = [] #(msg, x, y, framesLeft)
+
         self.sock = None
 
         self.header_sent = False
@@ -141,6 +144,9 @@ class Client(object):
                 ),
                 utype = DataUpdate.FACEDATA
             )
+            if self.outgoing_message_q:
+                update.message = outgoing_message_q[0]
+                outgoing_message_q = outgoing_message_q[1:]
             logging.info('x: %s, y: %s', x, y)
             self._Send(update)
 
@@ -220,6 +226,10 @@ class Client(object):
             logging.exception('Invalid packet')
             return
 
+        if data.message:
+            self.messages_rendering.append(
+                [data.message, 50, 50, self.MESSAGE_DURATION])
+
         if data.utype == DataUpdate.FACEDATA:
             self.target_face = data.facedata
 
@@ -271,6 +281,15 @@ class Client(object):
         if self.bg_img is None:
             return
         img = self.bg_img.copy()
+
+        for msg in self.messages_rendering:
+            cv2.putText(img, msg[0], (msg[1],msg[2]), cv2.FONT_HERSHEY_COMPLEX,
+                3, 255)
+            msg[3]=msg[3]-1
+
+        self.messages_rendering =filter(lambda l: l[3]>0,
+                                        self.messages_rendering)
+
         if self.target_face is not None:
             if self.current_face is None:
                 self.current_face = self.target_face
