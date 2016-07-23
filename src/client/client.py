@@ -219,33 +219,31 @@ class Client(object):
                     raise 
 
     def RenderFrame(self):
-        if self.target_face is None:
-            return
-        if self.current_face is None:
+        img = self.bg_img.copy()
+        if self.target_face is not None:
             self.current_face = self.target_face
 
-        self.current_face = self._InterpolateFaceData(self.current_face,
-                                                        self.target_face)
+            self.current_face = self._InterpolateFaceData(self.current_face,
+                                                            self.target_face)
 
-        face = cv2.resize(self.smiley_face,
-                          dsize=(self.current_face.size,
-                                 self.current_face.size),
-                          interpolation = cv2.INTER_CUBIC)
+            face = cv2.resize(self.smiley_face,
+                              dsize=(self.current_face.size,
+                                     self.current_face.size),
+                              interpolation = cv2.INTER_CUBIC)
 
-        img = self.bg_img.copy()
-        x = self.current_face.x
-        y = self.current_face.y
-        face = rotate_image(face, 0)
-        width, height = current_face.shape[:2]
-        a = width/2
-        b = width - width/2
+            x = self.current_face.x
+            y = self.current_face.y
+            face = rotate_image(face, 0)
+            width, height = current_face.shape[:2]
+            a = width/2
+            b = width - width/2
 
-        try:
-            for c in range(0,3):
-                img[y-a:y+b, x-a:x+b, c] = \
-                face[:,:,c] * (face[:,:,3]/255.0) +  img[y-a:y+b, x-a:x+b, c] * (1.0 - face[:,:,3]/255.0)
-        except ValueError:
-            print "ValueError"
+            try:
+                for c in range(0,3):
+                    img[y-a:y+b, x-a:x+b, c] = \
+                    face[:,:,c] * (face[:,:,3]/255.0) +  img[y-a:y+b, x-a:x+b, c] * (1.0 - face[:,:,3]/255.0)
+            except ValueError:
+                logging.exception('blitting exception')
 
         # Display the resulting frame
         cv2.imshow('silly video chat', img)
