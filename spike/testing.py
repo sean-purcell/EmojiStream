@@ -1,7 +1,7 @@
 import sys
 import cv2
 
-from detect.face import locate_face, init_detect
+from detect.face import locate_face, init_detect, rotate_image
 
 camera =  cv2.VideoCapture(0)
 
@@ -31,9 +31,11 @@ def main():
             width = detected[2]
             height = detected[3]
             size = max(abs(width), abs(height))
-            a = size/2
-            b = size - size/2
             face = cv2.resize(smiley_face, dsize=(size, size), interpolation = cv2.INTER_CUBIC)
+            face = rotate_image(face, 0)
+            width, height = face.shape[:2]
+            a = width/2
+            b = width - width/2
 
             try:
                 for c in range(0,3):
