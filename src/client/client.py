@@ -243,7 +243,7 @@ class Client(object):
                     img[y-a:y+b, x-a:x+b, c] = \
                     face[:,:,c] * (face[:,:,3]/255.0) +  img[y-a:y+b, x-a:x+b, c] * (1.0 - face[:,:,3]/255.0)
             except ValueError:
-                logging.exception('blitting exception')
+                logging.exception("RenderFrame tried to draw outside of the lines")
 
         # Display the resulting frame
         cv2.imshow('silly video chat', img)
