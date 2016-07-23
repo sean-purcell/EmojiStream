@@ -6,7 +6,7 @@ face = None
 
 def init_detect(classifier_path):
     global face
-    face = cv2.CascadeClassifier(sys.argv[1])
+    face = cv2.CascadeClassifier(classifier_path)
 
 settings = {
     'scaleFactor': 1.3, 
