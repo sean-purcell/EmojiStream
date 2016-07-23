@@ -42,7 +42,7 @@ def connect(ident, addr):
 
 
 def main(args):
-    print 'Identifier: ',
+    print 'Identifier:',
     ident = raw_input()
 
     sock, ouser = connect(ident, (args.server, args.port))
