@@ -7,12 +7,13 @@ camera =  cv2.VideoCapture(0)
 
 def main():
     framenum = 0
-    init_detect(sys.argv[1])
-
+    try:
+        init_detect(sys.argv[1])
+    except:
+        init_detect("../data/haar/haarcascade_frontalface_default.xml")
     detected = ()
 
     faces = cv2.imread("../data/images/emojis.png", -1)
-    x_offset=y_offset=36
     smiley_face = faces[3*72:4*72,0:72]
 
     while True:

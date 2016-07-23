@@ -124,9 +124,6 @@ class Client(object):
                 except DecodeError:
                     logging.exception('Invalid packet received: %s', data)
 
-    def SendData(self):
-        pass
-
     def RenderFrame(self):
         pass
 
