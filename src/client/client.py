@@ -106,8 +106,10 @@ class Client(object):
                     x=x,
                     y=y,
                     size = int(size)
-                ))
+                )
+            )
             logging.info('sending message to %s:', self.other_user.uid)
+                    size = size )
             logging.info('x: %s, y: %s', x, y)
             p = Packet(packet=update.SerializeToString(), uid=self.other_user.uid)
             self.sock.sendto(chr(0) + p.SerializeToString(), self.server_addr)
