@@ -230,8 +230,8 @@ class Client(object):
                 height, width = self.bg_img.shape[:2]
                 self.messages_rendering.append(
                     [data.msg.message,
-                     random.randint(height/2 - 100, height/2 + 100),
-                     random.randint(width/2 - 100, width/2 + 100),
+                     random.randint(width/2 - 250, width/2 + 250),
+                     random.randint(height/2 - 250, height/2 + 250),
                      self.MESSAGE_DURATION + time.time()])
 
         if data.utype == DataUpdate.FACEDATA:
