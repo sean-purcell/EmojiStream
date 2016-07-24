@@ -230,8 +230,8 @@ class Client(object):
                 height, width = self.bg_img.shape[:2]
                 self.messages_rendering.append(
                     [data.msg.message,
-                     random.randint(height/2 - 200, height/2 + 200),
-                     random.randint(width/2 - 200, width/2 + 200),
+                     random.randint(height/2 - 100, height/2 + 100),
+                     random.randint(width/2 - 100, width/2 + 100),
                      self.MESSAGE_DURATION + time.time()])
 
         if data.utype == DataUpdate.FACEDATA:
@@ -313,7 +313,7 @@ class Client(object):
 
         for msg in self.messages_rendering:
             cv2.putText(img, msg[0], (msg[1],msg[2]), cv2.FONT_HERSHEY_COMPLEX,
-                3, 255)
+                3, 255, 3)
 
         self.messages_rendering =filter(lambda l: l[3] > time.time(),
                                         self.messages_rendering)
