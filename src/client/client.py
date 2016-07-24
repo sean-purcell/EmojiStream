@@ -286,13 +286,6 @@ class Client(object):
             return
         img = self.bg_img.copy()
 
-        for msg in self.messages_rendering:
-            cv2.putText(img, msg[0], (msg[1],msg[2]), cv2.FONT_HERSHEY_COMPLEX,
-                3, 255)
-
-        self.messages_rendering =filter(lambda l: l[3] > time.time(),
-                                        self.messages_rendering)
-
         if self.target_face is not None:
             if self.current_face is None:
                 self.current_face = self.target_face
@@ -317,6 +310,13 @@ class Client(object):
                     face[:,:,c] * (face[:,:,3]/255.0) +  img[y-a:y+b, x-a:x+b, c] * (1.0 - face[:,:,3]/255.0)
             except ValueError:
                 logging.exception("RenderFrame tried to draw outside of the lines")
+
+        for msg in self.messages_rendering:
+            cv2.putText(img, msg[0], (msg[1],msg[2]), cv2.FONT_HERSHEY_COMPLEX,
+                3, 255)
+
+        self.messages_rendering =filter(lambda l: l[3] > time.time(),
+                                        self.messages_rendering)
 
         # Display the resulting frame
         cv2.imshow('silly video chat', img)
