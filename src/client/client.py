@@ -222,9 +222,14 @@ class Client(object):
             logging.exception('Invalid packet')
             return
 
-        if data.message:
+        if data.msg:
+            random.seed(data.msg.seed)
+            height, width = self.bg_img.shape[:2]
             self.messages_rendering.append(
-                [data.message, 50, 50, self.MESSAGE_DURATION + time.time()])
+                [data.msg.message,
+                 random.randint(height/2 - 200, height/2 + 200),
+                 random.randint(width/2 - 200, width/2 + 200),
+                 self.MESSAGE_DURATION + time.time()])
 
         if data.utype == DataUpdate.FACEDATA:
             self.target_face = data.facedata
