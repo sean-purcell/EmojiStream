@@ -312,7 +312,7 @@ class Client(object):
                 logging.exception("RenderFrame tried to draw outside of the lines")
 
         for msg in self.messages_rendering:
-            cv2.putText(img, msg[0], (msg[1],msg[2]), cv2.FONT_HERSHEY_COMPLEX,
+            cv2.putText(img, msg[0], (msg[1],msg[2]), cv2.FONT_HERSHEY_SIMPLEX,
                 3, 255, 3)
 
         self.messages_rendering =filter(lambda l: l[3] > time.time(),
