@@ -18,7 +18,8 @@ from os.path import join, abspath, dirname
 from detect.face import locate_face, init_detect, rotate_image
 from google.protobuf.message import DecodeError
 from proto.conn_pb2 import ConnectionRequest, Packet
-from proto.dataupdates_pb2 import ImageHeader, ImageBlock, FaceData, DataUpdate
+from proto.dataupdates_pb2 import ImageHeader, ImageBlock, FaceData, \
+    DataUpdate, Msg
 
 def ParseArgs():
     parser = argparse.ArgumentParser(description='💻 🎥 📞 📡 😀')
@@ -321,8 +322,11 @@ class Client(object):
         res, _, _ = select.select([0], [], [], 0)
         if 0 in res:
             line = raw_input()
+            seed = struct.unpack("<Q", os.urandom(8))[0]
             update = DataUpdate(
-                message = line,
+                msg = Msg(
+                    message=line,
+                    seed=seed),
                 utype = DataUpdate.MESSAGE
             )
             for i in xrange(20):

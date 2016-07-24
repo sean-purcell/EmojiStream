@@ -29,9 +29,14 @@ message FaceData {
     int32 size = 8;
 }
 
+message Msg {
+    string message = 1;
+    fixed64 seed = 2;
+}
+
 message DataUpdate {
     FaceData facedata = 1;
-    string message = 2;
+    Msg msg = 2;
     ImageBlock img_block = 3;
     ImageHeader img_hdr = 4;
     enum Type {
